@@ -129,9 +129,9 @@ class Page:
         self.prev_page = None
         self.next_page = None
         self.total_lines = self.count_lines()
-        self.linear_list = self.line_list()[:-1]
+        linear_list = self.line_list()[:-1]
         self.linked_list_of_lines = line_linked_list()
-        self.linked_list_of_lines.list_to_linked(self.linear_list)
+        self.linked_list_of_lines.list_to_linked(linear_list)
 
     def count_lines(self):
         r = str(self.text).count("\n")
@@ -155,6 +155,16 @@ class Page:
             i+=1
             k=k.next
         return fin
+    def repfind_in_page(self,s:str,c:str):
+        k=self.linked_list_of_lines.first
+        i=0
+        while(k!= None):
+            if(s in k.data):
+                k.data=str(k.data).replace(s,c)
+                self.linked_list_of_lines.chlist[i]=k.data
+
+            k=k.next
+            i+=1
     @staticmethod
     def make_it_new_page(text=None):
         temp = Page()
@@ -232,7 +242,6 @@ class whole_file:
                     # self.current_page.linear_list.extend(p.chlist)
                     self.current_page.linked_list_of_lines = line_linked_list.merge_two_linear_linked_list(
                         self.current_page.linked_list_of_lines, p)
-
                 if ("insert" in s):  # insert one line
                     nes = s.strip()
                     patt = "insert\((.+),(\d+)\)"
@@ -241,7 +250,6 @@ class whole_file:
                     text = (a[0])
                     a = Node(text)
                     line_linked_list.insert_node(a, n, self.current_page.linked_list_of_lines)
-
                 if ("remove" in s):
                     nes = s.strip()
                     patt = "(\d+)"
@@ -278,8 +286,17 @@ class whole_file:
                         print("Not found! #error276")
                     else:
                         print(finder,sep="\n")
+                if("far" in s):
+                    op = self.first_page
+                    nes = s.strip()
+                    patt = "far\((.+),(.+)\)"
+                    a = re.search(patt, s).groups()
+                    while (op != None):
+                        Page.repfind_in_page(op, a[0],a[1])
+                        op = op.next_page
+                    print("Mission Passed!")
 
-                if()
+
 
             else:
                 print("Not a command!")
@@ -299,7 +316,7 @@ class whole_file:
         return r
 
 
-path = "./problem/w.txt"
+path = "./w.txt"
 # file_input_get(path)
 
 # i = open(path, 'r')
