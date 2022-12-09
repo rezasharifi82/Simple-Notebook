@@ -1,32 +1,58 @@
 # In The Name Of God
 import re
+from copy import deepcopy
 
 
 class Node:
-    def __init__(self, data):
+    def __init__(self, data=None):
         self.next = None
         self.prev = None
         self.data = data
 
 
+class stack:
+    def __init__(self):
+        self.head = 0
+        self.top = Node()
+
+    def push(self, data):
+        self.top.data = data
+        self.top.next = Node()
+        self.top.next.prev = self.top
+        self.top = self.top.next
+        self.head += 1
+
+    def pop(self):
+        self.top = self.top.prev
+        self.top.next = None
+        d = self.top.data
+        self.head -= 1
+        return d
+
+
 class line_linked_list:
     def __init__(self):
         self.head = 0  # head data to save useful data
+        self.fake=Node()
         self.first = Node(None)
-
+        self.first.prev=self.fake
+        self.fake.next=self.first
         self.pointer = Node(None)
 
     def list_to_linked(self, a: list):
-        self.chlist = a
-        self.head = len(a)
-        self.first.data = a[0]
-        self.pointer = self.first
-        for i in a[1:]:
-            b = Node(i)
-            self.pointer.next = b
-            b = self.pointer
-            self.pointer = self.pointer.next
-            self.pointer.prev = b
+        if(len(a)>0):
+            self.chlist = a
+            self.head = len(a)
+            self.first.data = a[0]
+            self.pointer = self.first
+            for i in a[1:]:
+                b = Node(i)
+                self.pointer.next = b
+                b = self.pointer
+                self.pointer = self.pointer.next
+                self.pointer.prev = b
+        else:
+            print("Not enough page! #55")
 
     @staticmethod
     def merge_two_linear_linked_list(a: __init__, b: __init__):  # concat two list
@@ -100,21 +126,21 @@ class line_linked_list:
         # b is second one
         # c is linked list
         # inplace replace
-        a,b=min(a,b),max(a,b)
-        an=None
-        bn=None
+        a, b = min(a, b), max(a, b)
+        an = None
+        bn = None
         i = 0
         k = c.first
         while (k != None):
             i += 1
             if (i == b):
-                bn=k
-                an.data,bn.data=bn.data,an.data
-                c.chlist[a-1],c.chlist[b-1]=c.chlist[b-1],c.chlist[a-1]
+                bn = k
+                an.data, bn.data = bn.data, an.data
+                c.chlist[a - 1], c.chlist[b - 1] = c.chlist[b - 1], c.chlist[a - 1]
                 break
-            elif(i==a):
-                an=k
-                k=k.next
+            elif (i == a):
+                an = k
+                k = k.next
             else:
                 k = k.next
         else:
@@ -142,29 +168,32 @@ class Page:
         return self.text
 
     def line_list(self):
-        pa="\n"
-        b = re.split(pa,self.text)
+        pa = "\n"
+        b = re.split(pa, self.text)
         return b
-    def find_in_page(self,s:str):
-        i=0
-        fin=[]
-        k=self.linked_list_of_lines.first
-        while(k!= None):
-            if(s in k.data):
-                fin.append((i,k.data))
-            i+=1
-            k=k.next
-        return fin
-    def repfind_in_page(self,s:str,c:str):
-        k=self.linked_list_of_lines.first
-        i=0
-        while(k!= None):
-            if(s in k.data):
-                k.data=str(k.data).replace(s,c)
-                self.linked_list_of_lines.chlist[i]=k.data
 
-            k=k.next
-            i+=1
+    def find_in_page(self, s: str):
+        i = 0
+        fin = []
+        k = self.linked_list_of_lines.first
+        while (k != None):
+            if (s in k.data):
+                fin.append((i, k.data))
+            i += 1
+            k = k.next
+        return fin
+
+    def repfind_in_page(self, s: str, c: str):
+        k = self.linked_list_of_lines.first
+        i = 0
+        while (k != None):
+            if (s in k.data):
+                k.data = str(k.data).replace(s, c)
+                self.linked_list_of_lines.chlist[i] = k.data
+
+            k = k.next
+            i += 1
+
     @staticmethod
     def make_it_new_page(text=None):
         temp = Page()
@@ -192,16 +221,43 @@ class whole_file:
         self.first_page = Page(r[0])
         self.current_page = self.first_page
         self.file_pointer = self.first_page
+        self.fake=Page("itis\n$\nfake")
         self.total_page = len(r)
         self.page_number = 1
+        self.first_page.prev_page=self.fake
+        self.fake.next_page=self.first_page
+        self.actions = stack()
+        self.redo = stack()
+
         r = r[1:]
         for i in r:
             self.file_pointer.next_page = Page(i)
-            self.file_pointer.next_page.prev_page=self.file_pointer
+            self.file_pointer.next_page.prev_page = self.file_pointer
             self.file_pointer = self.file_pointer.next_page
         # TODO:    save method
 
         self.now_we_run_the_program()
+    def add_undo(self):
+        d = deepcopy((self.page_number, self.current_page))
+        self.actions.push(d)
+    def add_redo(self):
+        d = deepcopy((self.page_number, self.current_page))
+        self.redo.push(d)
+    def Just_Do_It(self,that:tuple):
+        n=int(that[0])
+        that=that[1]
+        i=1
+        k=self.first_page
+        while(k!= None):
+            if(i==n):
+                k.prev_page.next_page=that
+                that.next_page=k.next_page
+                k.next_page.prev_page=that
+                that.prev_page=k.prev_page
+                break
+            else:
+                i+=1
+                k=k.next_page
 
     def now_we_run_the_program(self):
         s = ""
@@ -239,10 +295,12 @@ class whole_file:
                     print(the_lines[n])
                 if ("append" in s):
                     p = read_text_from_terminal()
+                    self.add_undo()
                     # self.current_page.linear_list.extend(p.chlist)
                     self.current_page.linked_list_of_lines = line_linked_list.merge_two_linear_linked_list(
                         self.current_page.linked_list_of_lines, p)
                 if ("insert" in s):  # insert one line
+                    self.add_undo()
                     nes = s.strip()
                     patt = "insert\((.+),(\d+)\)"
                     a = re.search(patt, s).groups()
@@ -251,50 +309,59 @@ class whole_file:
                     a = Node(text)
                     line_linked_list.insert_node(a, n, self.current_page.linked_list_of_lines)
                 if ("remove" in s):
+                    self.add_undo()
                     nes = s.strip()
                     patt = "(\d+)"
                     a = re.search(patt, s).group()
                     a = int(a)
                     line_linked_list.remove_node(a, self.current_page.linked_list_of_lines)
                 if ("replace" in s):  # String and line number
+                    self.add_undo()
                     nes = s.strip()
                     patt = "replace\((.+),(\d+)\)"
                     a = re.search(patt, s).groups()
                     n = int(a[1])
                     text = (a[0])
-                    line_linked_list.replace_node(text,n,self.current_page.linked_list_of_lines)
+                    line_linked_list.replace_node(text, n, self.current_page.linked_list_of_lines)
                 if ("swap" in s):
+                    self.add_undo()
                     nes = s.strip()
                     patt = "swap\((\d+),(\d+)\)"
                     a = re.search(patt, s).groups()
-                    b=int(a[0])
-                    c=int(a[1])
-                    line_linked_list.swap_node(b,c,self.current_page.linked_list_of_lines)
-                if("find" in s):
-                    op=self.first_page
+                    b = int(a[0])
+                    c = int(a[1])
+                    line_linked_list.swap_node(b, c, self.current_page.linked_list_of_lines)
+                if ("find" in s):
+                    op = self.first_page
                     nes = s.strip()
-                    i=0
+                    i = 0
                     patt = "find\((.+)\)"
                     a = re.search(patt, s).groups()
-                    finder=[]
-                    while(op !=None):
-                        i+=1
-                        r=Page.find_in_page(op,a[0])
-                        finder.extend([i,r])
-                        op=op.next_page
-                    if(len(finder)<=0):
+                    finder = []
+                    while (op != None):
+                        i += 1
+                        r = Page.find_in_page(op, a[0])
+                        finder.extend([i, r])
+                        op = op.next_page
+                    if (len(finder) <= 0):
                         print("Not found! #error276")
                     else:
-                        print(finder,sep="\n")
-                if("far" in s):
+                        print(finder, sep="\n")
+                if ("far" in s):
+                    self.add_undo()
                     op = self.first_page
                     nes = s.strip()
                     patt = "far\((.+),(.+)\)"
                     a = re.search(patt, s).groups()
                     while (op != None):
-                        Page.repfind_in_page(op, a[0],a[1])
+                        Page.repfind_in_page(op, a[0], a[1])
                         op = op.next_page
                     print("Mission Passed!")
+                if ("undo" in s):
+                    if(self.actions.head>0):
+                        self.Just_Do_It(self.actions.pop())
+                    else:
+                        print("Not enough actions!#339")
 
 
 
