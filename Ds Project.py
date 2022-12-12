@@ -14,6 +14,7 @@ class stack:
     def __init__(self):
         self.head = 0
         self.top = Node()
+        #TODO also check the logic here
 
     def push(self, data):
         self.top.data = data
@@ -67,6 +68,7 @@ class line_linked_list:
     def insert_node(a: Node, b: int, c: __init__):  # a is node b is possition
         # c is linked list of text
         # inplace insert
+        #TODO also check insert begining and first update node
         i = 0
         k = c.first
         while (k != None):
@@ -78,6 +80,8 @@ class line_linked_list:
                 k.prev = a
                 c.head += 1
                 c.chlist.insert(b - 1, a.data)
+                if(i==1):
+                    c.first=c.first.prev
                 break
             else:
                 k = k.next
@@ -91,10 +95,13 @@ class line_linked_list:
         while (k != None):
             i += 1
             if (i == b):
+                #TODO if i==1 remove (c.first) should be update for begining nods
                 k.prev.next = k.next
                 k.next.prev = k.prev
                 c.head -= 1
                 c.chlist.pop(b - 1)
+                if(i==1):
+                    c.first=c.first.next
                 break
             else:
                 k = k.next
@@ -107,6 +114,7 @@ class line_linked_list:
         # b is position
         # c is linked list
         # inplace replace
+        #TODO maybe we need c.first update for this func too
         i = 0
         k = c.first
         while (k != None):
@@ -147,6 +155,16 @@ class line_linked_list:
             print("Not found that line! #error1095")
 
 
+    def __str__(self):
+        m=self
+
+        k=self.first
+        s=""
+        while(k!=None):
+            s+=str(k.data)+"\n"
+            k=k.next
+        return s
+
 class Page:
     sep = "\$"
 
@@ -172,7 +190,7 @@ class Page:
         b = re.split(pa, self.text)
         return b
 
-    def find_in_page(self, s: str):
+    def find_in_page(self, s: str):  #find
         i = 0
         fin = []
         k = self.linked_list_of_lines.first
@@ -183,7 +201,7 @@ class Page:
             k = k.next
         return fin
 
-    def repfind_in_page(self, s: str, c: str):
+    def repfind_in_page(self, s: str, c: str):  #replace and find
         k = self.linked_list_of_lines.first
         i = 0
         while (k != None):
@@ -238,10 +256,10 @@ class whole_file:
 
         self.now_we_run_the_program()
     def add_undo(self):
-        d = deepcopy((self.page_number, self.current_page))
+        d = deepcopy((self.page_number, self.current_page.linked_list_of_lines))
         self.actions.push(d)
     def add_redo(self):
-        d = deepcopy((self.page_number, self.current_page))
+        d = deepcopy((self.page_number, self.current_page.linked_list_of_lines))
         self.redo.push(d)
     def Just_Do_It(self,that:tuple):
         n=int(that[0])
@@ -250,10 +268,8 @@ class whole_file:
         k=self.first_page
         while(k!= None):
             if(i==n):
-                k.prev_page.next_page=that
-                that.next_page=k.next_page
-                k.next_page.prev_page=that
-                that.prev_page=k.prev_page
+                k.linked_list_of_lines=that
+
                 break
             else:
                 i+=1
@@ -359,9 +375,21 @@ class whole_file:
                     print("Mission Passed!")
                 if ("undo" in s):
                     if(self.actions.head>0):
+                        self.add_redo()
                         self.Just_Do_It(self.actions.pop())
                     else:
-                        print("Not enough actions!#339")
+                        print("Not enough actions!#371")
+                if("redo" in s):
+                    if (self.redo.head > 0):
+                        self.add_undo()
+                        self.Just_Do_It(self.redo.pop())
+                    else:
+                        print("Not enough actions!#377")
+                if("save" in s):
+                    k=self.current_page.linked_list_of_lines
+                    print(self.current_page.linked_list_of_lines)
+
+
 
 
 
