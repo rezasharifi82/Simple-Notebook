@@ -1,7 +1,17 @@
-1
+17
+ioi
+7
+11
+13
 2
-file pointer is lst element
 $
-88
+lacklack
 99
+6
+
+lack
+5
+15
+16
+17
 $

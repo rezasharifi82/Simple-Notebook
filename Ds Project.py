@@ -8,6 +8,8 @@ class Node:
         self.next = None
         self.prev = None
         self.data = data
+    def __str__(self):
+        return str(self.data)
 
 
 class stack:
@@ -164,16 +166,23 @@ class line_linked_list:
             s+=str(k.data)+"\n"
             k=k.next
         return s
+    def __len__(self):
+        k=self.first
+        i=0
+        while(k!=None):
+            i+=1
+            k=k.next
+        return i
 
 class Page:
-    sep = "\$"
+    sep = "\s\$\s|\s\$"
 
     def __init__(self, text):
         self.text = text
         self.prev_page = None
         self.next_page = None
         self.total_lines = self.count_lines()
-        linear_list = self.line_list()[:-1]
+        linear_list = self.line_list()
         self.linked_list_of_lines = line_linked_list()
         self.linked_list_of_lines.list_to_linked(linear_list)
 
@@ -193,13 +202,15 @@ class Page:
     def find_in_page(self, s: str):  #find
         i = 0
         fin = []
+        z=0
         k = self.linked_list_of_lines.first
         while (k != None):
             if (s in k.data):
-                fin.append((i, k.data))
+                z+=str(k.data).count(s)
+                fin.append(("Page line number: "+str(i+1), "Full text: " +str(k.data)))
             i += 1
             k = k.next
-        return fin
+        return (z,fin)
 
     def repfind_in_page(self, s: str, c: str):  #replace and find
         k = self.linked_list_of_lines.first
@@ -219,7 +230,8 @@ class Page:
         return temp
 
     def __str__(self):
-        return self.text
+        return str(self.linked_list_of_lines)
+
 
 
 def read_text_from_terminal():
@@ -237,24 +249,31 @@ class whole_file:
     def __init__(self, path=None):  # contains parse method
         r = self.file_input_get(path)
         self.first_page = Page(r[0])
+        self.path=path
         self.current_page = self.first_page
         self.file_pointer = self.first_page
-        self.fake=Page("itis\n$\nfake")
+        # self.fake=Page("itis\n$\nfake")
         self.total_page = len(r)
         self.page_number = 1
-        self.first_page.prev_page=self.fake
-        self.fake.next_page=self.first_page
+        self.first_page.prev_page=None
         self.actions = stack()
         self.redo = stack()
-
-        r = r[1:]
+        r=r[1:]
         for i in r:
             self.file_pointer.next_page = Page(i)
             self.file_pointer.next_page.prev_page = self.file_pointer
             self.file_pointer = self.file_pointer.next_page
-        # TODO:    save method
 
         self.now_we_run_the_program()
+    def __str__(self):
+        m=self
+        k=self.first_page
+        s=""
+        while(k!=None):
+            s+=str(k)+"$\n"
+            k=k.next_page
+        return s
+
     def add_undo(self):
         d = deepcopy((self.page_number, self.current_page.linked_list_of_lines))
         self.actions.push(d)
@@ -280,7 +299,7 @@ class whole_file:
 
         while (s != "$exit"):
             print("page number: {}".format(self.page_number))
-            self.current_page.total_lines = self.current_page.linked_list_of_lines.head
+            self.current_page.total_lines = len(self.current_page.linked_list_of_lines)
 
             s = input()
             if (s.startswith("$")):  # it is a command
@@ -291,31 +310,32 @@ class whole_file:
                     else:
                         print("No more page!")
                         self.page_number -= 1
-                if ("previouspage" in s):
+                elif ("previouspage" in s):
                     self.page_number -= 1
                     if (self.page_number > 0):
                         self.current_page = self.current_page.prev_page
                     else:
                         self.page_number += 1
-                        print("No more page is available")
-                if ("where" in s):
+                        print("No more page is available!")
+                elif ("where" in s):
                     print("We are at page number {}".format(self.page_number))
-                if ("lines" in s):
+                elif ("lines" in s):
                     print(self.current_page.total_lines)
-                if ("show" in s):
+
+                elif ("show" in s):
                     nes = s.strip()
                     patt = "(\d+)"
                     n = re.search(patt, nes).group()
                     n = int(n)
                     the_lines = self.current_page.linked_list_of_lines.chlist
-                    print(the_lines[n])
-                if ("append" in s):
+                    print(the_lines[n-1])
+                elif ("append" in s):
                     p = read_text_from_terminal()
                     self.add_undo()
                     # self.current_page.linear_list.extend(p.chlist)
                     self.current_page.linked_list_of_lines = line_linked_list.merge_two_linear_linked_list(
                         self.current_page.linked_list_of_lines, p)
-                if ("insert" in s):  # insert one line
+                elif ("insert" in s):  # insert one line
                     self.add_undo()
                     nes = s.strip()
                     patt = "insert\((.+),(\d+)\)"
@@ -324,14 +344,14 @@ class whole_file:
                     text = (a[0])
                     a = Node(text)
                     line_linked_list.insert_node(a, n, self.current_page.linked_list_of_lines)
-                if ("remove" in s):
+                elif ("remove" in s):
                     self.add_undo()
                     nes = s.strip()
                     patt = "(\d+)"
                     a = re.search(patt, s).group()
                     a = int(a)
                     line_linked_list.remove_node(a, self.current_page.linked_list_of_lines)
-                if ("replace" in s):  # String and line number
+                elif ("replace" in s):  # String and line number
                     self.add_undo()
                     nes = s.strip()
                     patt = "replace\((.+),(\d+)\)"
@@ -339,7 +359,7 @@ class whole_file:
                     n = int(a[1])
                     text = (a[0])
                     line_linked_list.replace_node(text, n, self.current_page.linked_list_of_lines)
-                if ("swap" in s):
+                elif ("swap" in s):
                     self.add_undo()
                     nes = s.strip()
                     patt = "swap\((\d+),(\d+)\)"
@@ -347,23 +367,30 @@ class whole_file:
                     b = int(a[0])
                     c = int(a[1])
                     line_linked_list.swap_node(b, c, self.current_page.linked_list_of_lines)
-                if ("find" in s):
+                elif ("find" in s):
                     op = self.first_page
                     nes = s.strip()
                     i = 0
                     patt = "find\((.+)\)"
                     a = re.search(patt, s).groups()
                     finder = []
+                    tot=0
                     while (op != None):
                         i += 1
                         r = Page.find_in_page(op, a[0])
-                        finder.extend([i, r])
+                        z=r[0]
+                        tot+=z
+                        r=r[1]
+                        finder.extend(["#####","In Page: "+str(i),"We've {} Option".format(z) ,r,"............................"])
                         op = op.next_page
+
                     if (len(finder) <= 0):
                         print("Not found! #error276")
                     else:
-                        print(finder, sep="\n")
-                if ("far" in s):
+                        # print(len(finder))
+                        print(*finder,sep="\n",end="\n")
+                        print("In total we have {} options".format(tot))
+                elif ("far" in s):
                     self.add_undo()
                     op = self.first_page
                     nes = s.strip()
@@ -373,21 +400,32 @@ class whole_file:
                         Page.repfind_in_page(op, a[0], a[1])
                         op = op.next_page
                     print("Mission Passed!")
-                if ("undo" in s):
+                elif ("undo" in s):
                     if(self.actions.head>0):
                         self.add_redo()
                         self.Just_Do_It(self.actions.pop())
                     else:
                         print("Not enough actions!#371")
-                if("redo" in s):
+                elif("redo" in s):
                     if (self.redo.head > 0):
                         self.add_undo()
                         self.Just_Do_It(self.redo.pop())
                     else:
                         print("Not enough actions!#377")
-                if("save" in s):
-                    k=self.current_page.linked_list_of_lines
-                    print(self.current_page.linked_list_of_lines)
+                elif("save" in s):
+                    o=str(self)
+                    print("#######################\n\n")
+                    print(o)
+                    print("\n\n #######################")
+                    i=open(self.path,"w")
+                    i.write(o)
+                    # s="$exit"
+
+
+
+
+
+
 
 
 
@@ -397,10 +435,11 @@ class whole_file:
                 print("Not a command!")
 
         else:
+            self.file.close()
             return 0
 
     def create_linked_mode(self, text=None):  # seperate all those pages
-        rege = "\$"
+        rege = Page.sep
         flist = re.split(rege, text)
         return flist[:-1]
 
