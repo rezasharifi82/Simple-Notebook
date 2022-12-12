@@ -16,7 +16,6 @@ class stack:
     def __init__(self):
         self.head = 0
         self.top = Node()
-        #TODO also check the logic here
 
     def push(self, data):
         self.top.data = data
@@ -70,7 +69,6 @@ class line_linked_list:
     def insert_node(a: Node, b: int, c: __init__):  # a is node b is possition
         # c is linked list of text
         # inplace insert
-        #TODO also check insert begining and first update node
         i = 0
         k = c.first
         while (k != None):
@@ -97,7 +95,6 @@ class line_linked_list:
         while (k != None):
             i += 1
             if (i == b):
-                #TODO if i==1 remove (c.first) should be update for begining nods
                 k.prev.next = k.next
                 k.next.prev = k.prev
                 c.head -= 1
@@ -116,7 +113,6 @@ class line_linked_list:
         # b is position
         # c is linked list
         # inplace replace
-        #TODO maybe we need c.first update for this func too
         i = 0
         k = c.first
         while (k != None):
