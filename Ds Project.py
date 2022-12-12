@@ -444,32 +444,5 @@ class whole_file:
         text = self.file.read()
         r = self.create_linked_mode(text)
         return r
-
-
 path = "./w.txt"
-# file_input_get(path)
-
-# i = open(path, 'r')
-# a=str(i.read().)
-# print(a)
-# a = "!@#sep#@".strip()
-
-# s = i.read()[:-10]
-# c = re.split(a, s)
-# s="show(5)"
-# patt="(\d+)"
-# a=re.search(patt,s).group()
-# print(a)
-# i = 0
-# a = ""
-# while (i < 5):
-#     s = input()
-#     a += "\n" + s
-#     i += 1
-
 whole_file(path)
-
-# patt="insert\((.+),(\d+)\)"
-# s="insert(sadsa,5)"
-# a=re.search(patt,s).groups()
-# print(a)
