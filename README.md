@@ -66,6 +66,6 @@ Actually, It's like vim. You should work with commands.
       Undo the last change
       
    - **$redo**:   
-      Obvious
+      Obvious   
       
-   
+  ## This project was the mid-term project of "Data Structure" Course at FUM
