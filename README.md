@@ -29,43 +29,43 @@ Actually, It's like vim. You should work with commands.
    - **$exit**:   
        Save the final file and exit from file
        
-   - **$nextpage**:
+   - **$nextpage**:   
        Show the next page. (all pages were seperated via "$" symbol)
        
-   - **$previouspage**:
+   - **$previouspage**:   
        Same as next page
        
-   - **$where**:
+   - **$where**:   
       show your current page number
       
-   - **$show(n)**:
+   - **$show(n)**:   
       Show the line number n in current page
       
-   - **$append**:
+   - **$append**:   
       Insert new text at the end of current page.
       
-   - **$insert(d,n)**:
+   - **$insert(d,n)**:   
       Insert text d at line number n
       
-   - **$remove( n )**:
+   - **$remove( n )**:   
       Remove line number n from the current page
       
-   - **replace( a , n )**:
+   - **replace( a , n )**:   
       Replace text a with the text at line number n
       
-   - **$swap( a , b )**:
+   - **$swap( a , b )**:   
       Swap line number a with line number b
       
-   - **$find(a)**:
+   - **$find(a)**:   
       Find all possible testcases of a in whole file
       
-   - **$far ( a , b )**:
+   - **$far ( a , b )**:   
       Find and replace text a with text b
       
-   - **$undo**:
+   - **$undo**:   
       Undo the last change
       
-   - **$redo**:
+   - **$redo**:   
       Obvious
       
    
