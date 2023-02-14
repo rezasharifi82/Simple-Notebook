@@ -14,13 +14,13 @@ This is a simple text editor which can modify text file using python.
   > **Show(n)**   
   > **Append**   
   > **Insert(text,line number)**   
-  > **Remove(n)
-  > **Replace( a , n )**
-  > **Swap( a , b )**
-  > **Find(a)**
-  > **Find&Replace ( a , b )**
-  > **Undo**
-  > **Redo**
+  > **Remove(n)**   
+  > **Replace( a , n )**   
+  > **Swap( a , b )**  
+  > **Find(a)**  
+  > **Find&Replace ( a , b )**  
+  > **Undo**  
+  > **Redo**  
   
   
 Actually, It's like vim. You should work with commands.
